@@ -1,4 +1,3 @@
----
 Description: Fully functional VPC with NACL, SG, IGW, Route Table, and EC2
 
 Resources:
