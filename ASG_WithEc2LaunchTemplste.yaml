@@ -1,25 +1,40 @@
-MyLaunchTemplate:
+Description: Auto Scaling Group - with EC2 using existing network
+
+Parameters:
+  ExistingSubnetId:
+    Type: AWS::EC2::Subnet::Id # give the id #
+    Description: Subnet where EC2 instances will be launched
+
+  ExistingSecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id # give the id #
+    Description: Security group for EC2 instances
+
+Resources:
+  MyLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
     Properties:
-      LaunchTemplateName: MyLaunchTemplate
-      LaunchTemplateData:
+      LaunchTemplateName: MyComputeLaunchTemplate # we can give it now, but if we use this code for re-deploy, it will show error : Launch template name already exists"
+      LaunchTemplateData: # SO, better remove LaunchTemplateName to use this code for re-deploy#
         ImageId: ami-0f3caa1cf4417e51b
         InstanceType: t2.micro
         SecurityGroupIds:
-          - !Ref MyInstanceSG
+          - !Ref ExistingSecurityGroup # Refers the existing netwok, so it won't create one on its own! #
+        TagSpecifications:
+          - ResourceType: instance
+            Tags:
+              - Key: Name
+                Value: ASG-EC2-Instance
 
   MyAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       VPCZoneIdentifier:
-        - !Ref MySubnet1
+        - !Ref ExistingSubnetId
       LaunchTemplate:
         LaunchTemplateId: !Ref MyLaunchTemplate
         Version: !GetAtt MyLaunchTemplate.LatestVersionNumber
       MinSize: 1
       MaxSize: 2
       DesiredCapacity: 1
-      Tags:
-        - Key: Name
-          Value: MyASGInstance
-          PropagateAtLaunch: true
+      HealthCheckType: EC2
+      HealthCheckGracePeriod: 300
