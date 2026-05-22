@@ -1,8 +1,15 @@
----
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Launch a single EC2 instance
+
+Parameters:
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+    #default is SSM (Systems manager Parameter Path, AWS stores public values in the AWS-managed service called, Inside Parameter Store, AWS maintains updates Automatically
+
 Resources:
-    MyInstance:
-        Type: AWS::EC2::Instance
-        Properties:
-            AvailabilityZone: us-east-1a
-            ImageID: ami-0f3caa1cf4417e51b
-            InstanceType: t2.micro
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: t2.micro
